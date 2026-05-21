@@ -33,14 +33,8 @@ function defaultPlayers() {
 }
 
 function responseSecondsFromDifficulty(level) {
-  const map = {
-    1: 20,
-    2: 14,
-    3: 8,
-    4: 2
-  };
-
-  return map[level] || 20;
+  void level;
+  return 20;
 }
 
 function makePlayerState(player, index) {

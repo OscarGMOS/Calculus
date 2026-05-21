@@ -30,11 +30,7 @@ Ahora incluye modo multijugador por turnos con personalizacion por edad.
 - Cada pregunta tiene un tiempo limite visual con un matraz que se vacia.
 - El matraz tiene forma alquimica (cuello, cuerpo, base y burbujas animadas).
 - Si el tiempo llega a 0, la pregunta cuenta como fallo y pasa al siguiente turno.
-- El tiempo depende del nivel de dificultad:
-	- Nivel 1: 20s
-	- Nivel 2: 14s
-	- Nivel 3: 8s
-	- Nivel 4: 2s
+- El tiempo es fijo para todas las preguntas: 20 segundos.
 
 ## Sonidos divertidos
 
