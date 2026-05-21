@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Calculus: juego de matematicas inspirado en una escuela de magia para practicar suma, resta, multiplicacion y division." />
+  <title>Calculus | Academia Magica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="mist"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <header class="hero">
+    <h1>Calculus</h1>
+    <p>Duelo de hechizos matematicos para sumar, restar, multiplicar y dividir con velocidad.</p>
+  </header>
+
+  <main class="layout">
+    <button id="toggleConfigBtn" class="floating-toggle" type="button" aria-controls="configPanel" aria-expanded="true">Ocultar Config</button>
+
+    <section class="panel config-panel" id="configPanel">
+      <h2>Configuracion de Clase</h2>
+
+      <label for="operation">Hechizo</label>
+      <select id="operation">
+        <option value="mix">Mezcla Magica</option>
+        <option value="add">Suma</option>
+        <option value="subtract">Resta</option>
+        <option value="multiply">Multiplicacion</option>
+        <option value="divide">Division</option>
+      </select>
+
+      <label for="difficulty">Nivel</label>
+      <select id="difficulty">
+        <option value="1">Aprendiz</option>
+        <option value="2" selected>Explorador</option>
+        <option value="3">Duelista</option>
+        <option value="4">Maestro Arcano</option>
+      </select>
+
+      <label for="rounds">Rondas</label>
+      <select id="rounds">
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+      </select>
+
+      <label for="mode">Modo de Juego</label>
+      <select id="mode">
+        <option value="single" selected>Un Jugador</option>
+        <option value="multi">Multijugador por Turnos</option>
+      </select>
+
+      <div class="toggle-row">
+        <label for="ageAdaptive">Dificultad por Edad</label>
+        <input id="ageAdaptive" type="checkbox" checked />
+      </div>
+
+      <div class="players-config" id="playersConfig">
+        <h3>Jugadoras</h3>
+        <div class="player-form">
+          <label for="p1Name">Nombre Jugadora 1</label>
+          <input id="p1Name" type="text" maxlength="20" value="Luna" />
+
+          <label for="p1Age">Edad Jugadora 1</label>
+          <input id="p1Age" type="number" min="4" max="17" value="8" />
+        </div>
+        <div class="player-form" id="player2Block">
+          <label for="p2Name">Nombre Jugadora 2</label>
+          <input id="p2Name" type="text" maxlength="20" value="Mia" />
+
+          <label for="p2Age">Edad Jugadora 2</label>
+          <input id="p2Age" type="number" min="4" max="17" value="10" />
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <label for="timedMode">Modo Cronometro (60s)</label>
+        <input id="timedMode" type="checkbox" />
+      </div>
+
+      <div class="toggle-row">
+        <label for="soundEnabled">Sonidos Divertidos</label>
+        <input id="soundEnabled" type="checkbox" checked />
+      </div>
+
+      <button id="startBtn" class="btn primary">Iniciar Mision</button>
+      <button id="resetBtn" class="btn ghost">Reiniciar</button>
+
+      <div class="house-points">
+        <div class="house-points__label">Puntos de Casa</div>
+        <div class="house-points__meter">
+          <div id="houseMeter"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel game-panel">
+      <p class="turn-label" id="turnLabel">Turno: --</p>
+      <p class="player-status-title" id="playerStatusTitle">Panel del Jugador</p>
+      <div class="status-grid">
+        <div class="status-item">
+          <span>Puntaje</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="status-item">
+          <span>Racha</span>
+          <strong id="streak">0</strong>
+        </div>
+        <div class="status-item">
+          <span>Precision</span>
+          <strong id="accuracy">0%</strong>
+        </div>
+        <div class="status-item">
+          <span>Tiempo</span>
+          <strong id="timeLeft">--</strong>
+        </div>
+      </div>
+
+      <div class="question-wrap" id="questionWrap">
+        <div class="flask-timer" id="flaskTimer" aria-label="Temporizador de respuesta">
+          <div class="flask-alchemy">
+            <div class="flask-neck"></div>
+            <div class="flask-glass">
+              <div class="flask-liquid-mask">
+                <div class="flask-liquid" id="flaskLiquid"></div>
+              </div>
+              <div class="flask-bubbles"></div>
+            </div>
+            <div class="flask-base"></div>
+          </div>
+          <p class="flask-text" id="flaskText">Tiempo de respuesta: --</p>
+        </div>
+        <p class="question-label">Desafio actual</p>
+        <p id="question" class="question">Presiona "Iniciar Mision" para comenzar.</p>
+      </div>
+
+      <form id="answerForm" autocomplete="off">
+        <label for="answerInput">Tu respuesta</label>
+        <input id="answerInput" type="number" step="any" inputmode="decimal" placeholder="Escribe aqui" disabled />
+        <div class="actions">
+          <button class="btn primary" type="submit" id="submitBtn" disabled>Lanzar Hechizo</button>
+          <button class="btn ghost" type="button" id="skipBtn" disabled>Pasar</button>
+        </div>
+      </form>
+
+      <div id="feedback" class="feedback" aria-live="polite"></div>
+
+      <div class="progress-row">
+        <span id="progressText">Progreso: 0 / 0</span>
+      </div>
+
+      <div class="player-board" id="playerBoard"></div>
+    </section>
+
+    <section class="panel rewards-panel">
+      <h2>Insignias Magicas</h2>
+      <ul id="badges" class="badges">
+        <li data-badge="streak5">Racha de 5</li>
+        <li data-badge="streak10">Racha de 10</li>
+        <li data-badge="accuracy90">Precision 90%</li>
+        <li data-badge="score200">200 Puntos</li>
+      </ul>
+      <p class="tip" id="tipText">Tip: las respuestas correctas seguidas multiplican los puntos.</p>
+    </section>
+  </main>
+
+  <footer>
+    <small>Disenado para GitHub Pages · Inspirado en una academia de magia clasica.</small>
+  </footer>
+
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
