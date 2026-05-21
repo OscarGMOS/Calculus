@@ -5,6 +5,15 @@ Pensado para practicar rapidez en suma, resta, multiplicacion y division.
 
 Ahora incluye modo multijugador por turnos con personalizacion por edad.
 
+## Novedades recientes
+
+- Dificultad progresiva durante la partida segun el avance.
+- Temporizador por pregunta fijo en 20 segundos.
+- Matraz alquimico adaptado a la forma del contenido.
+- Selector de tono de voz (Misteriosa, Clara, Alegre y Narrador).
+- Mejoras de pronunciacion para textos con acentos en voces magicas.
+- Boton flotante para ocultar configuracion en pantallas horizontales pequenas.
+
 ## Estructura
 
 - `index.html`: interfaz principal.
@@ -25,6 +34,13 @@ Ahora incluye modo multijugador por turnos con personalizacion por edad.
 	- 12+ anos: nivel 4
 - Las `Rondas` se aplican por jugadora en multijugador.
 
+## Dificultad progresiva en partida
+
+- La dificultad de los calculos aumenta automaticamente conforme avanza la mision.
+- Se aplica por jugadora (en multijugador cada una progresa con su propio ritmo).
+- En modo por rondas sube por tramos de progreso.
+- En modo cronometro sube cada 5 respuestas.
+
 ## Temporizador de respuesta (matraz)
 
 - Cada pregunta tiene un tiempo limite visual con un matraz que se vacia.
@@ -43,6 +59,7 @@ Ahora incluye modo multijugador por turnos con personalizacion por edad.
 - Se usan voces del navegador (SpeechSynthesis) para narrar eventos del juego.
 - Frases incluidas: inicio, cambio de turno, acierto, error, salto, timeout, alerta de poco tiempo y fin de mision.
 - Se activan y desactivan con el mismo control `Sonidos Divertidos`.
+- Incluye selector `Tono de Voz` con 4 estilos: Misteriosa, Clara, Alegre y Narrador.
 
 ## Publicar en GitHub Pages
 

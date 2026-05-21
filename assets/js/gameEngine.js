@@ -37,6 +37,10 @@ function responseSecondsFromDifficulty(level) {
   return 20;
 }
 
+function clampDifficulty(level) {
+  return Math.max(1, Math.min(4, Number(level) || 1));
+}
+
 function makePlayerState(player, index) {
   return {
     id: index + 1,
@@ -345,11 +349,33 @@ export class GameEngine {
     return this.state.players[this.state.activePlayerIndex];
   }
 
+  getProgressiveDifficulty(player) {
+    const baseDifficulty = this.config.ageAdaptive
+      ? difficultyFromAge(player.age)
+      : Number(this.config.difficulty);
+
+    let increase = 0;
+
+    if (this.config.timedMode) {
+      // In timed mode, raise challenge every 5 answered questions.
+      increase = Math.floor(player.asked / 5);
+    } else {
+      const roundsPerPlayer = Math.max(1, Number(this.config.rounds) || 1);
+      const progress = player.asked / roundsPerPlayer;
+
+      if (progress >= 0.75) {
+        increase = 2;
+      } else if (progress >= 0.4) {
+        increase = 1;
+      }
+    }
+
+    return clampDifficulty(baseDifficulty + increase);
+  }
+
   createQuestionForActivePlayer() {
     const activePlayer = this.getActivePlayer();
-    const resolvedDifficulty = this.config.ageAdaptive
-      ? difficultyFromAge(activePlayer.age)
-      : Number(this.config.difficulty);
+    const resolvedDifficulty = this.getProgressiveDifficulty(activePlayer);
 
     return {
       ...createProblem(this.config.operation, resolvedDifficulty),

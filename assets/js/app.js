@@ -11,6 +11,7 @@ const elements = {
   ageAdaptive: document.getElementById("ageAdaptive"),
   timedMode: document.getElementById("timedMode"),
   soundEnabled: document.getElementById("soundEnabled"),
+  voiceTone: document.getElementById("voiceTone"),
   p1Name: document.getElementById("p1Name"),
   p1Age: document.getElementById("p1Age"),
   p2Name: document.getElementById("p2Name"),
@@ -168,6 +169,11 @@ elements.soundEnabled.addEventListener("change", () => {
   voices.setEnabled(elements.soundEnabled.checked);
 });
 
+elements.voiceTone.addEventListener("change", () => {
+  voices.setTone(elements.voiceTone.value);
+  voices.previewTone();
+});
+
 elements.mode.addEventListener("change", () => {
   elements.player2Block.style.display = elements.mode.value === "multi" ? "block" : "none";
 });
@@ -182,6 +188,7 @@ landscapeQuery.addEventListener("change", applyLandscapeConfigRules);
 elements.startBtn.addEventListener("click", () => {
   sounds.setEnabled(elements.soundEnabled.checked);
   voices.setEnabled(elements.soundEnabled.checked);
+  voices.setTone(elements.voiceTone.value);
   sounds.playStart();
   voices.onMissionStart(elements.mode.value);
   resetAll();
@@ -207,4 +214,5 @@ resetAll();
 elements.player2Block.style.display = elements.mode.value === "multi" ? "block" : "none";
 sounds.setEnabled(elements.soundEnabled.checked);
 voices.setEnabled(elements.soundEnabled.checked);
+voices.setTone(elements.voiceTone.value);
 applyLandscapeConfigRules();

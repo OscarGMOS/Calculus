@@ -1,4 +1,40 @@
 const DEFAULT_LANG = "es-ES";
+const DEFAULT_TONE = "mysterious";
+
+const TONE_PROFILES = {
+  mysterious: {
+    rateMin: 0.92,
+    rateMax: 0.98,
+    pitchMin: 0.9,
+    pitchMax: 0.98,
+    volume: 1,
+    label: "misterioso"
+  },
+  clear: {
+    rateMin: 1,
+    rateMax: 1.08,
+    pitchMin: 0.98,
+    pitchMax: 1.06,
+    volume: 1,
+    label: "claro"
+  },
+  cheerful: {
+    rateMin: 1.02,
+    rateMax: 1.12,
+    pitchMin: 1.08,
+    pitchMax: 1.2,
+    volume: 1,
+    label: "alegre"
+  },
+  narrator: {
+    rateMin: 0.9,
+    rateMax: 0.96,
+    pitchMin: 0.84,
+    pitchMax: 0.92,
+    volume: 1,
+    label: "narrador"
+  }
+};
 
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
@@ -8,6 +44,7 @@ export class MagicVoices {
   constructor() {
     this.enabled = true;
     this.lang = DEFAULT_LANG;
+    this.tone = DEFAULT_TONE;
     this.voice = null;
     this.lastTurnSpoken = null;
     this.lastWarningSignature = null;
@@ -20,6 +57,24 @@ export class MagicVoices {
     if (!this.enabled && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+  }
+
+  setTone(tone) {
+    if (TONE_PROFILES[tone]) {
+      this.tone = tone;
+      return;
+    }
+
+    this.tone = DEFAULT_TONE;
+  }
+
+  getToneProfile() {
+    return TONE_PROFILES[this.tone] || TONE_PROFILES[DEFAULT_TONE];
+  }
+
+  previewTone() {
+    const profile = this.getToneProfile();
+    this.speak(`Tono ${profile.label} activado.`, { cancelBefore: true, minIntervalMs: 0 });
   }
 
   speak(text, options = {}) {
@@ -39,12 +94,13 @@ export class MagicVoices {
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const profile = this.getToneProfile();
+    const utterance = new SpeechSynthesisUtterance(String(text).normalize("NFC"));
     const selectedVoice = this.getVoice();
     utterance.lang = options.lang || this.lang;
-    utterance.rate = options.rate ?? randomBetween(0.94, 1.03);
-    utterance.pitch = options.pitch ?? randomBetween(0.92, 1.03);
-    utterance.volume = options.volume ?? 1;
+    utterance.rate = options.rate ?? randomBetween(profile.rateMin, profile.rateMax);
+    utterance.pitch = options.pitch ?? randomBetween(profile.pitchMin, profile.pitchMax);
+    utterance.volume = options.volume ?? profile.volume;
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
@@ -83,6 +139,7 @@ export class MagicVoices {
       "monica",
       "helena",
       "paulina",
+      "español",
       "espanol",
       "spanish"
     ];
@@ -101,8 +158,8 @@ export class MagicVoices {
 
   onMissionStart(mode) {
     const line = mode === "multi"
-      ? "Comienza el duelo magico. Las sombras vigilan cada turno."
-      : "Mision iniciada. La niebla cubre la pizarra encantada.";
+      ? "Comienza el duelo mágico. Las sombras vigilan cada turno."
+      : "Misión iniciada. La niebla cubre la pizarra encantada.";
 
     this.speak(line, { cancelBefore: true, rate: 0.95, pitch: 0.96 });
     this.lastTurnSpoken = null;
@@ -121,8 +178,8 @@ export class MagicVoices {
   onCorrect() {
     const lines = [
       "Brillante. Hechizo perfecto.",
-      "Excelente. Tu magia numerica es fuerte.",
-      "Fantastico. Acertaste al instante."
+      "Excelente. Tu magia numérica es fuerte.",
+      "Fantástico. Acertaste al instante."
     ];
 
     this.speak(lines[Math.floor(Math.random() * lines.length)], { rate: 0.99, pitch: 1.02 });
@@ -145,20 +202,20 @@ export class MagicVoices {
       return;
     }
 
-    this.speak("Rapido. El matraz se vacia.", { rate: 1.01, pitch: 1 });
+    this.speak("Rápido. El matraz se vacía.", { rate: 1.01, pitch: 1 });
     this.lastWarningSignature = signature;
   }
 
   onLevelUp(level) {
-    this.speak(`Nivel aumentado. Ahora estas en nivel ${level}.`, { rate: 0.98, pitch: 1.01 });
+    this.speak(`Nivel aumentado. Ahora estás en nivel ${level}.`, { rate: 0.98, pitch: 1.01 });
   }
 
   onMissionEnd(winnerName) {
     if (winnerName) {
-      this.speak(`Mision completada. Ganadora ${winnerName}.`, { cancelBefore: true, rate: 0.95, pitch: 0.96 });
+      this.speak(`Misión completada. Ganadora ${winnerName}.`, { cancelBefore: true, rate: 0.95, pitch: 0.96 });
       return;
     }
 
-    this.speak("Mision completada. Gran trabajo en la academia.", { cancelBefore: true, rate: 0.95, pitch: 0.96 });
+    this.speak("Misión completada. Gran trabajo en la academia.", { cancelBefore: true, rate: 0.95, pitch: 0.96 });
   }
 }
