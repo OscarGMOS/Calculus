@@ -13,6 +13,9 @@ Ahora incluye modo multijugador por turnos con personalizacion por edad.
 - Selector de tono de voz (Misteriosa, Clara, Alegre y Narrador).
 - Mejoras de pronunciacion para textos con acentos en voces magicas.
 - Boton flotante para ocultar configuracion en pantallas horizontales pequenas.
+- Menu colapsable en movil con auto-colapso al iniciar y auto-expansion al finalizar mision.
+- Animaciones graciosas durante la partida (aciertos, errores, urgencia de tiempo).
+- Confeti y superconfeti para insignias y cierres de mision con alto rendimiento.
 
 ## Estructura
 

@@ -49,20 +49,42 @@ const sounds = new SoundFX();
 const voices = new MagicVoices();
 let lastQuestionTimeLeft = null;
 let lastActivePlayerId = null;
+let didAutoCollapseOnMobile = false;
 
 const landscapeQuery = window.matchMedia("(orientation: landscape) and (max-height: 540px) and (max-width: 1024px)");
+const mobileMenuQuery = window.matchMedia("(max-width: 760px)");
 
 function syncConfigToggleButton() {
   const collapsed = document.body.classList.contains("config-collapsed");
-  elements.toggleConfigBtn.textContent = collapsed ? "Mostrar Config" : "Ocultar Config";
+  elements.toggleConfigBtn.textContent = collapsed ? "Mostrar Menu" : "Ocultar Menu";
   elements.toggleConfigBtn.setAttribute("aria-expanded", String(!collapsed));
 }
 
-function applyLandscapeConfigRules() {
-  if (!landscapeQuery.matches) {
+function isCollapsibleViewport() {
+  return landscapeQuery.matches || mobileMenuQuery.matches;
+}
+
+function applyResponsiveConfigRules() {
+  if (!isCollapsibleViewport()) {
     document.body.classList.remove("config-collapsed");
+    didAutoCollapseOnMobile = false;
+  } else if (mobileMenuQuery.matches && !didAutoCollapseOnMobile) {
+    document.body.classList.add("config-collapsed");
+    didAutoCollapseOnMobile = true;
   }
+
   syncConfigToggleButton();
+}
+
+function focusAnswerInput() {
+  setTimeout(() => {
+    if (elements.answerInput.disabled) {
+      return;
+    }
+
+    elements.answerInput.focus({ preventScroll: true });
+    elements.answerInput.select();
+  }, 40);
 }
 
 function increaseDifficultyForNextMission() {
@@ -118,6 +140,12 @@ const game = new GameEngine(
   },
   (state) => {
     ui.showFinal(state);
+
+    if (mobileMenuQuery.matches) {
+      document.body.classList.remove("config-collapsed");
+      syncConfigToggleButton();
+    }
+
     if (state.players.length > 1) {
       const ranking = [...state.players].sort((a, b) => b.score - a.score);
       voices.onMissionEnd(ranking[0]?.name);
@@ -183,7 +211,8 @@ elements.toggleConfigBtn.addEventListener("click", () => {
   syncConfigToggleButton();
 });
 
-landscapeQuery.addEventListener("change", applyLandscapeConfigRules);
+landscapeQuery.addEventListener("change", applyResponsiveConfigRules);
+mobileMenuQuery.addEventListener("change", applyResponsiveConfigRules);
 
 elements.startBtn.addEventListener("click", () => {
   sounds.setEnabled(elements.soundEnabled.checked);
@@ -193,6 +222,13 @@ elements.startBtn.addEventListener("click", () => {
   voices.onMissionStart(elements.mode.value);
   resetAll();
   game.start(getConfig());
+
+  if (mobileMenuQuery.matches) {
+    document.body.classList.add("config-collapsed");
+    syncConfigToggleButton();
+  }
+
+  focusAnswerInput();
 });
 
 elements.resetBtn.addEventListener("click", () => {
@@ -215,4 +251,4 @@ elements.player2Block.style.display = elements.mode.value === "multi" ? "block" 
 sounds.setEnabled(elements.soundEnabled.checked);
 voices.setEnabled(elements.soundEnabled.checked);
 voices.setTone(elements.voiceTone.value);
-applyLandscapeConfigRules();
+applyResponsiveConfigRules();

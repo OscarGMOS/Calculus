@@ -9,6 +9,15 @@ export class UIController {
   constructor(elements) {
     this.elements = elements;
     this.lastBadges = new Set();
+    this.confettiLayer = this.createConfettiLayer();
+    this.lastSuperConfettiAt = 0;
+  }
+
+  createConfettiLayer() {
+    const layer = document.createElement("div");
+    layer.className = "confetti-layer";
+    document.body.appendChild(layer);
+    return layer;
   }
 
   setPlaying(isPlaying) {
@@ -57,8 +66,8 @@ export class UIController {
     this.updateBadges(state.badges);
     this.setPlaying(state.active);
 
-    if (state.active) {
-      this.elements.answerInput.focus();
+    if (state.active && document.activeElement !== this.elements.answerInput) {
+      this.elements.answerInput.focus({ preventScroll: true });
     }
 
     this.elements.player2Block.style.display = config.mode === "multi" ? "block" : "none";
@@ -74,6 +83,13 @@ export class UIController {
         .map((player) => `${player.name}: ${player.score} pts (${player.accuracy}% precision)`)
         .join(" · ");
       this.elements.tipText.textContent = "Repite la mision subiendo edades o dificultad para mantener el reto.";
+
+      const topAccuracy = ranking[0]?.accuracy || 0;
+      if (topAccuracy >= 90 || ranking[0]?.score >= 220) {
+        this.launchSuperConfetti();
+      } else {
+        this.launchConfettiBurst();
+      }
       return;
     }
 
@@ -81,6 +97,12 @@ export class UIController {
     this.elements.feedback.className = "feedback ok";
     this.elements.feedback.textContent = `Correctas: ${state.correct} · Incorrectas: ${state.wrong} · Precision: ${state.accuracy}%`;
     this.elements.tipText.textContent = this.getMotivationalTip(state);
+
+    if (state.accuracy >= 90 || state.score >= 220) {
+      this.launchSuperConfetti();
+    } else {
+      this.launchConfettiBurst();
+    }
   }
 
   renderPlayerBoard(players, activeId) {
@@ -107,27 +129,28 @@ export class UIController {
     if (feedback.timedOut) {
       this.elements.feedback.className = "feedback bad";
       this.elements.feedback.textContent = `Se acabo el tiempo. Respuesta correcta: ${feedback.correctAnswer}`;
+      this.retriggerAnimation(this.elements.questionWrap, "silly-shake");
       return;
     }
 
     if (feedback.wasSkipped) {
       this.elements.feedback.className = "feedback warn";
       this.elements.feedback.textContent = `Saltaste la pregunta. Respuesta correcta: ${feedback.correctAnswer}`;
+      this.retriggerAnimation(this.elements.questionWrap, "silly-wobble");
       return;
     }
 
     if (feedback.isCorrect) {
       this.elements.feedback.className = "feedback ok";
       this.elements.feedback.textContent = "Correcto. Excelente lanzamiento.";
-      this.elements.questionWrap.classList.remove("correct-burst");
-      // Trigger animation by forcing reflow.
-      void this.elements.questionWrap.offsetWidth;
-      this.elements.questionWrap.classList.add("correct-burst");
+      this.retriggerAnimation(this.elements.questionWrap, "correct-burst");
+      this.retriggerAnimation(this.elements.score, "party-bounce");
       return;
     }
 
     this.elements.feedback.className = "feedback bad";
     this.elements.feedback.textContent = `No esta bien. Resultado correcto: ${feedback.correctAnswer}`;
+    this.retriggerAnimation(this.elements.questionWrap, "silly-shake");
   }
 
   renderFlaskTimer(state) {
@@ -144,6 +167,7 @@ export class UIController {
 
     if (ratio <= 0.35) {
       this.elements.flaskTimer.classList.add("low");
+      this.retriggerAnimation(this.elements.flaskTimer, "panic-jump");
       return;
     }
 
@@ -164,6 +188,12 @@ export class UIController {
     badges.forEach((code) => {
       if (!this.lastBadges.has(code) && badgeMessages[code]) {
         this.elements.tipText.textContent = badgeMessages[code];
+
+        if (code === "streak10" || code === "accuracy90") {
+          this.launchSuperConfetti();
+        } else {
+          this.launchConfettiBurst(16);
+        }
       }
     });
 
@@ -187,5 +217,51 @@ export class UIController {
     }
 
     return "Practicar 5 minutos diarios mejora velocidad y confianza.";
+  }
+
+  retriggerAnimation(target, className) {
+    if (!target) {
+      return;
+    }
+
+    target.classList.remove(className);
+    void target.offsetWidth;
+    target.classList.add(className);
+  }
+
+  launchConfettiBurst(pieceCount = 24) {
+    if (!this.confettiLayer) {
+      return;
+    }
+
+    const colors = ["#f3be5f", "#73d39c", "#ff7b7b", "#7cc6ff", "#f5d99f"];
+
+    for (let i = 0; i < pieceCount; i += 1) {
+      const piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDuration = `${1.6 + Math.random() * 1.1}s`;
+      piece.style.animationDelay = `${Math.random() * 0.18}s`;
+      piece.style.transform = `translateY(-10px) rotate(${Math.random() * 360}deg)`;
+      this.confettiLayer.appendChild(piece);
+
+      setTimeout(() => {
+        piece.remove();
+      }, 3200);
+    }
+  }
+
+  launchSuperConfetti() {
+    const now = Date.now();
+    if (now - this.lastSuperConfettiAt < 1800) {
+      return;
+    }
+
+    this.lastSuperConfettiAt = now;
+    this.launchConfettiBurst(44);
+
+    setTimeout(() => this.launchConfettiBurst(36), 260);
+    setTimeout(() => this.launchConfettiBurst(30), 520);
   }
 }
